@@ -6,6 +6,7 @@ import { typography } from '../../theme/typography';
 import { router } from 'expo-router';
 import { buttonStyles } from '../../theme/buttons';
 import { calculateBalances } from '../../utils/balanceCalculator';
+import CalculatingScreen from '../../components/CalculatingScreen';
 
 type Participant = { id: string; name: string; paid: string; emoji?: string };
 
@@ -13,6 +14,7 @@ const EMOJIS = ['😎','🐱','🤓','🤠','😜','🐵','🐻','🐸','🧙‍
 
 export default function QuickSplitScreen() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
+  const [showCalculating, setShowCalculating] = useState(false);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [nameInput, setNameInput] = useState('');
@@ -26,6 +28,9 @@ export default function QuickSplitScreen() {
   // Animaciones
   const progressAnim = useState(new Animated.Value(0))[0];
   const contentOpacity = useState(new Animated.Value(1))[0];
+  
+  // Animaciones en cascada para resultados
+  const [resultAnimations, setResultAnimations] = useState<Animated.Value[]>([]);
 
   const total = useMemo(() => {
     return participants.reduce((acc, p) => acc + (parseFloat(p.paid) || 0), 0);
@@ -75,6 +80,31 @@ export default function QuickSplitScreen() {
       balance: (parseFloat(p.paid) || 0) - perPersonAmount,
     }));
   }, [participants, effectiveTotal]);
+
+  // Animaciones en cascada para la pantalla de resultados
+  useEffect(() => {
+    if (step === 2) {
+      // Calcular número de elementos a animar
+      const debtors = balances.filter(b => b.balance < 0).length;
+      const upToDate = participants.length > 2 ? balances.filter(b => b.balance >= 0).length : 0;
+      const totalElements = 1 + debtors + upToDate + 1; // título + deudores + al día + resumen
+      
+      // Crear animaciones
+      const anims = Array(totalElements).fill(0).map(() => new Animated.Value(0));
+      setResultAnimations(anims);
+      
+      // Ejecutar animaciones secuencialmente una tras otra
+      const animations = anims.map((anim) =>
+        Animated.timing(anim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      );
+      
+      Animated.sequence(animations).start();
+    }
+  }, [step, balances, participants.length]);
 
   const addPerson = () => {
     setShowAdd(true);
@@ -190,10 +220,20 @@ export default function QuickSplitScreen() {
       {step === 2 ? (
         <Animated.View style={[{ opacity: contentOpacity }]}>
           <ScrollView contentContainerStyle={styles.scrollContentResults}>
-            <Text style={styles.resultsTitle}>
-              ¡Todo listo!{'\n'}Solo falta pasar la gorra 🧢
-            </Text>
-            <Text style={styles.resultsSubtitle}>Clarita calculó todo para que nadie discuta.</Text>
+            <Animated.View style={{
+              opacity: resultAnimations[0] || 0,
+              transform: [{
+                translateY: (resultAnimations[0] || new Animated.Value(0)).interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-30, 0],
+                }),
+              }],
+            }}>
+              <Text style={styles.resultsTitle}>
+                ¡Todo listo!{'\n'}Solo falta pasar la gorra 🧢
+              </Text>
+              <Text style={styles.resultsSubtitle}>Clarita calculó todo para que nadie discuta.</Text>
+            </Animated.View>
           
           <View style={styles.paymentInstructions}>
             {/* Primero mostrar los que deben pagar */}
@@ -205,12 +245,24 @@ export default function QuickSplitScreen() {
               // Esta persona debe pagar
               const amountToPay = Math.abs(b.balance);
               const recipients = balances.filter(r => r.balance > 0);
+              const animIndex = 1 + index; // +1 porque el índice 0 es el título
               
               if (recipients.length === 1) {
                 // Si solo hay un receptor, mostrar directamente
                 const recipient = recipients[0];
                 return (
-                  <View key={b.id}>
+                  <Animated.View 
+                    key={b.id}
+                    style={{
+                      opacity: resultAnimations[animIndex] || 0,
+                      transform: [{
+                        translateY: (resultAnimations[animIndex] || new Animated.Value(0)).interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-30, 0],
+                        }),
+                      }],
+                    }}
+                  >
                     <View style={[styles.paymentSection, shouldReduceMargin && styles.lastPaymentSection]}>
                       <Text style={styles.payerName}>
                         {(b.emoji || '🙂')} {b.name} <Text style={styles.payerAction}>debe pagar a</Text>
@@ -233,12 +285,23 @@ export default function QuickSplitScreen() {
                     </View>
                     {/* Línea divisoria entre contenedores de pago */}
                     {index < array.length - 1 && <View style={styles.divider} />}
-                  </View>
+                  </Animated.View>
                 );
               } else {
                 // Si hay múltiples receptores, mostrar cada uno con su parte proporcional
                 return (
-                  <View key={b.id}>
+                  <Animated.View 
+                    key={b.id}
+                    style={{
+                      opacity: resultAnimations[animIndex] || 0,
+                      transform: [{
+                        translateY: (resultAnimations[animIndex] || new Animated.Value(0)).interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-30, 0],
+                        }),
+                      }],
+                    }}
+                  >
                     <View style={[styles.paymentSection, shouldReduceMargin && styles.lastPaymentSection]}>
                       <Text style={styles.payerName}>
                         {(b.emoji || '🙂')} {b.name} <Text style={styles.payerAction}>debe pagar a</Text>
@@ -265,7 +328,7 @@ export default function QuickSplitScreen() {
                         );
                       })}
                     </View>
-                  </View>
+                  </Animated.View>
                 );
               }
             })}
@@ -276,31 +339,60 @@ export default function QuickSplitScreen() {
             )}
 
             {/* Luego mostrar los que están al día (solo si hay más de 2 participantes) */}
-            {participants.length > 2 && balances.filter(b => b.balance >= 0).map((b, index) => (
-              <View key={b.id} style={[styles.upToDateCard, index === 0 && styles.firstUpToDateCard]}>
-                <Text style={styles.upToDateText}>
-                  {(b.emoji || '🙂')} {b.name} <Text style={styles.payerAction}>está al día</Text> 🎉
-                </Text>
-              </View>
-            ))}
+            {participants.length > 2 && balances.filter(b => b.balance >= 0).map((b, index) => {
+              const debtorsCount = balances.filter(d => d.balance < 0).length;
+              const animIndex = 1 + debtorsCount + index; // +1 título, +debtors, +index actual
+              return (
+                <Animated.View 
+                  key={b.id}
+                  style={{
+                    opacity: resultAnimations[animIndex] || 0,
+                    transform: [{
+                      translateY: (resultAnimations[animIndex] || new Animated.Value(0)).interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [-30, 0],
+                      }),
+                    }],
+                  }}
+                >
+                  <View style={[styles.upToDateCard, index === 0 && styles.firstUpToDateCard]}>
+                    <Text style={styles.upToDateText}>
+                      {(b.emoji || '🙂')} {b.name} <Text style={styles.payerAction}>está al día</Text> 🎉
+                    </Text>
+                  </View>
+                </Animated.View>
+              );
+            })}
           </View>
           
-          <View style={styles.summaryContainer}>
-            <View style={styles.summaryCard1}>
-              <Text style={styles.summaryTitle}>Monto por persona</Text>
-              <Text style={styles.summaryValue1}>${(effectiveTotal / participants.length).toFixed(2)}</Text>
-            </View>
-            
-            <View style={styles.summaryCard2}>
-              <Text style={styles.summaryTitle}>Total de participantes</Text>
-              <Text style={styles.summaryValue2}>{participants.length} participantes</Text>
-      </View>
+          <Animated.View 
+            style={{
+              opacity: resultAnimations[resultAnimations.length - 1] || 0,
+              transform: [{
+                translateY: (resultAnimations[resultAnimations.length - 1] || new Animated.Value(0)).interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-30, 0],
+                }),
+              }],
+            }}
+          >
+            <View style={styles.summaryContainer}>
+              <View style={styles.summaryCard1}>
+                <Text style={styles.summaryTitle}>Monto por persona</Text>
+                <Text style={styles.summaryValue1}>${(effectiveTotal / participants.length).toFixed(2)}</Text>
+              </View>
+              
+              <View style={styles.summaryCard2}>
+                <Text style={styles.summaryTitle}>Total de participantes</Text>
+                <Text style={styles.summaryValue2}>{participants.length} participantes</Text>
+        </View>
 
-            <View style={styles.summaryCard3}>
-              <Text style={styles.summaryTitle3}>Total gastado</Text>
-              <Text style={styles.summaryValue3}>${effectiveTotal.toFixed(2)}</Text>
+              <View style={styles.summaryCard3}>
+                <Text style={styles.summaryTitle3}>Total gastado</Text>
+                <Text style={styles.summaryValue3}>${effectiveTotal.toFixed(2)}</Text>
+              </View>
             </View>
-          </View>
+          </Animated.View>
           </ScrollView>
         </Animated.View>
       ) : (
@@ -426,7 +518,7 @@ export default function QuickSplitScreen() {
           <Button
             mode="contained"
             disabled={effectiveTotal <= 0 || participants.length === 0}
-            onPress={() => setStep(2)}
+            onPress={() => setShowCalculating(true)}
             style={[buttonStyles.button, buttonStyles.primary, buttonStyles.contained]}
             contentStyle={buttonStyles.content}
             labelStyle={buttonStyles.primaryText}
@@ -519,6 +611,22 @@ export default function QuickSplitScreen() {
         </View>
         </SafeAreaView>
       </Modal>
+
+      {/* Pantalla de cálculo */}
+      {showCalculating && (
+        <Modal
+          visible={showCalculating}
+          animationType="fade"
+          presentationStyle="fullScreen"
+        >
+          <CalculatingScreen 
+            onComplete={() => {
+              setShowCalculating(false);
+              setStep(2);
+            }}
+          />
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }

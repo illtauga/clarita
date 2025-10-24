@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, Animated } from 'react-native';
 import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -11,6 +11,7 @@ interface SplashScreenProps {
 
 export default function SplashScreen({ onAnimationFinish, animationSource }: SplashScreenProps) {
   const animationRef = useRef<LottieView>(null);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     // Opcional: reproducir la animación automáticamente
@@ -20,13 +21,20 @@ export default function SplashScreen({ onAnimationFinish, animationSource }: Spl
   }, []);
 
   const handleAnimationFinish = () => {
-    if (onAnimationFinish) {
-      onAnimationFinish();
-    }
+    // Iniciar fade out
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      if (onAnimationFinish) {
+        onAnimationFinish();
+      }
+    });
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <LottieView
         ref={animationRef}
         source={animationSource}
@@ -36,7 +44,7 @@ export default function SplashScreen({ onAnimationFinish, animationSource }: Spl
         resizeMode="cover"
         onAnimationFinish={handleAnimationFinish}
       />
-    </View>
+    </Animated.View>
   );
 }
 
