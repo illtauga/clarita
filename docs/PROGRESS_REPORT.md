@@ -252,3 +252,4 @@ En esta sesión se logró:
 El proyecto está en un estado excelente y listo para configurar Supabase y hacer pruebas end-to-end.
 
 
+

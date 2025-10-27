@@ -53,7 +53,7 @@
       "typedRoutes": true,
       "tsconfigPaths": true
     },
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "extra": {
       "router": {},
       "eas": {

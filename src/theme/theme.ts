@@ -1,16 +1,4 @@
 import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
-import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
-import { Roboto_400Regular, Roboto_500Medium, Roboto_700Bold } from '@expo-google-fonts/roboto';
-
-export const fonts = {
-  regular: Inter_400Regular,
-  medium: Inter_500Medium,
-  semiBold: Inter_600SemiBold,
-  bold: Inter_700Bold,
-  robotoRegular: Roboto_400Regular,
-  robotoMedium: Roboto_500Medium,
-  robotoBold: Roboto_700Bold,
-};
 
 export const lightTheme = {
   ...MD3LightTheme,
@@ -26,13 +14,13 @@ export const lightTheme = {
   fonts: {
     ...MD3LightTheme.fonts,
     regular: {
-      fontFamily: 'Inter_400Regular',
+      fontFamily: 'Poppins-Regular',
     },
     medium: {
-      fontFamily: 'Inter_500Medium',
+      fontFamily: 'Poppins-Medium',
     },
     bold: {
-      fontFamily: 'Inter_700Bold',
+      fontFamily: 'Poppins-Bold',
     },
   },
 };
@@ -51,13 +39,13 @@ export const darkTheme = {
   fonts: {
     ...MD3DarkTheme.fonts,
     regular: {
-      fontFamily: 'Inter_400Regular',
+      fontFamily: 'Poppins-Regular',
     },
     medium: {
-      fontFamily: 'Inter_500Medium',
+      fontFamily: 'Poppins-Medium',
     },
     bold: {
-      fontFamily: 'Inter_700Bold',
+      fontFamily: 'Poppins-Bold',
     },
   },
 }; 

@@ -34,3 +34,11 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Storybook
+.storybook/storybook.requires.ts
+
+# Firebase
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log

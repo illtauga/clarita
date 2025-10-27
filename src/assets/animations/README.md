@@ -68,3 +68,4 @@ Si tienes problemas:
 3. Revisa que la librería `lottie-react-native` esté instalada
 4. Reinicia el servidor de desarrollo si es necesario
 
+

@@ -5,8 +5,6 @@ import { lightTheme } from '../theme/theme';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '../contexts/AuthContext';
 import { LocalModeProvider } from '../contexts/LocalModeContext';
-import { Provider } from 'react-redux';
-import { store } from '../store/store';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -35,32 +33,30 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <Provider store={store}>
-        <SafeAreaProvider>
-          <LocalModeProvider>
-            <AuthProvider>
-              <PaperProvider theme={lightTheme}>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    animation: 'fade',
+      <SafeAreaProvider>
+        <LocalModeProvider>
+          <AuthProvider>
+            <PaperProvider theme={lightTheme}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'fade',
+                }}
+              >
+                <Stack.Screen 
+                  name="index" 
+                  options={{
+                    contentStyle: { backgroundColor: '#FFFFFF' }
                   }}
-                >
-                  <Stack.Screen 
-                    name="index" 
-                    options={{
-                      contentStyle: { backgroundColor: '#FFFFFF' }
-                    }}
-                  />
-                  <Stack.Screen name="(auth)" />
-                  <Stack.Screen name="(app)" />
-                  <Stack.Screen name="(local)" />
-                </Stack>
-              </PaperProvider>
-            </AuthProvider>
-          </LocalModeProvider>
-        </SafeAreaProvider>
-      </Provider>
+                />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(app)" />
+                <Stack.Screen name="(local)" />
+              </Stack>
+            </PaperProvider>
+          </AuthProvider>
+        </LocalModeProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

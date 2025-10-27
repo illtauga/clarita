@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "322861034153",
+    "project_id": "clarita-784ff",
+    "storage_bucket": "clarita-784ff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:322861034153:android:2af89c4a10cc260d6ad7b8",
+        "android_client_info": {
+          "package_name": "com.clarita.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9mn0yEQ2q82LYnEuRUEnyUIVK6oKN_AA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

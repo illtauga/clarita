@@ -7,27 +7,21 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "storybook": "npx rnstl && expo start",
-    "storybook:ios": "npx rnstl && expo run:ios",
-    "storybook:android": "npx rnstl && expo run:android",
-    "prestorybook": "npx rnstl",
-    "update-stories": "npx rnstl"
+    "build:preview": "eas build --profile preview --platform all",
+    "build:preview:android": "eas build --profile preview-firebase --platform android",
+    "build:preview:ios": "eas build --profile preview-firebase --platform ios",
+    "build:production": "eas build --profile production --platform all"
   },
   "dependencies": {
-    "@expo-google-fonts/inter": "^0.3.0",
-    "@expo-google-fonts/montserrat": "^0.3.0",
     "@expo-google-fonts/poppins": "^0.3.0",
-    "@expo-google-fonts/roboto": "^0.3.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/native-stack": "^7.2.0",
-    "@reduxjs/toolkit": "^2.6.1",
     "@supabase/supabase-js": "^2.49.4",
     "expo": "~54.0.0",
     "expo-constants": "~18.0.10",
     "expo-linking": "~8.0.8",
     "expo-router": "~6.0.13",
-    "expo-sharing": "^14.0.7",
     "expo-splash-screen": "~31.0.10",
     "expo-status-bar": "~3.0.8",
     "expo-system-ui": "~6.0.8",
@@ -40,39 +34,18 @@
     "react-native-paper": "^5.13.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
-    "react-native-svg": "^15.12.1",
-    "react-native-vector-icons": "^10.2.0",
-    "react-redux": "^9.2.0"
+    "react-native-svg": "^15.12.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
-    "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
-    "@babel/preset-react": "^7.26.3",
-    "@storybook/addon-ondevice-actions": "^9.1.4",
-    "@storybook/addon-ondevice-controls": "^9.1.4",
-    "@storybook/react-native": "^9.1.4",
-    "@storybook/react-native-server": "^6.5.8",
     "@types/react": "~19.0.10",
-    "ajv": "^8.17.1",
-    "ajv-keywords": "^5.1.0",
     "eslint": "^8.56.0",
     "eslint-config-universe": "^12.0.0",
     "eslint-plugin-prettier": "^5.1.3",
+    "firebase-tools": "^14.22.0",
     "prettier": "^3.2.5",
-    "react-native-storybook-loader": "^2.0.5",
     "react-native-svg-transformer": "^1.5.0",
-    "schema-utils": "^4.3.2",
-    "storybook": "^9.1.13",
     "typescript": "~5.8.3"
   },
-  "private": true,
-  "config": {
-    "react-native-storybook-loader": {
-      "searchDir": [
-        "./src"
-      ],
-      "pattern": "**/*.stories.?(ts|tsx|js|jsx)",
-      "outputFile": "./.storybook/storybook.requires.ts"
-    }
-  }
+  "private": true
 }
